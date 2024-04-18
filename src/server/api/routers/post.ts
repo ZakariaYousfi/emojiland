@@ -44,6 +44,9 @@ export const postRouter = createTRPCRouter({
 
     const posts = await ctx.db.post.findMany({
       take: 100,
+      orderBy: [{
+        createdAt: "desc"
+      }]
     });
 
   const users = (await clerkClient.users.getUserList({
