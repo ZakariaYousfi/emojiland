@@ -8,6 +8,7 @@ import Image from "next/image";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { PageLayout } from "~/components/layout";
 
  dayjs.extend(relativeTime)
 
@@ -93,14 +94,12 @@ export default function Home() {
 
   return (
     <>
-      <main className="flex justify-center h-screen">
-      <div className="w-full  md:max-w-2xl border-x border-slate-400">
-      <div className="border-b border-slate-400 p-4">
-      {isSignedIn ? <div ><CreatePostWizard/></div> : (isSignedIn && (<div className = "flex justify-center">  <SignInButton></SignInButton></div>))}
-      </div>
+      <PageLayout>
+        <div className="border-b border-slate-400 p-4">      
+          {isSignedIn ? <div ><CreatePostWizard/></div> : (isSignedIn && (<div className = "flex justify-center">  <SignInButton></SignInButton></div>))}
+          </div>
       <Feed/>
-      </div>
-      </main>
+      </PageLayout>
     </>
   );
 }
