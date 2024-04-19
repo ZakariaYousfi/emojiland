@@ -12,11 +12,11 @@ const ProfilePage: NextPage<{ username: string}> = ({username}) => {
       <Head>
         <title>{data.username}</title>
       </Head>
-      <main className="flex justify-center h-screen">
+      <PageLayout>
       <div>
         { data.username }
       </div>
-      </main>
+      </PageLayout>
     </>
   );
 }
@@ -26,6 +26,7 @@ import { appRouter } from "~/server/api/root";
 import { db
  } from "~/server/db";
 import superjson from "superjson";import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
+import { PageLayout } from "~/components/layout";
  "superjson";
 
 export const getStaticProps: GetStaticProps = async (context) => {
