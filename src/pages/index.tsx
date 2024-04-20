@@ -83,7 +83,7 @@ export default function Home() {
     <>
       <PageLayout>
         <div className="border-b border-slate-400 p-4">      
-          {isSignedIn ? <div ><CreatePostWizard/></div> : (isSignedIn && (<div className = "flex justify-center">  <SignInButton></SignInButton></div>))}
+          {isSignedIn && (<div ><CreatePostWizard/></div>)} { !isSignedIn && (<div className = "flex justify-center">  <SignInButton></SignInButton></div>)}
           </div>
       <Feed/>
       </PageLayout>
