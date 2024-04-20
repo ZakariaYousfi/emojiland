@@ -13,9 +13,12 @@ const ProfilePage: NextPage<{ username: string}> = ({username}) => {
         <title>{data.username}</title>
       </Head>
       <PageLayout>
-      <div>
-        { data.username }
+      <div className= "bg-slate-600 h-36 relative">
+        <Image src={data.profileImageUrl} alt = {`${data.username ?? ""}'s profile picture`} width = {128} height = {128} className = "-mb-[64px] absolute bottom-0 left-0 ml-4 rounded-full border-4 border-black bg-black"/>
       </div>
+      <div className = "h-[64px]"></div>
+        <div className = "p-4 text-2xl font-bold">{`@${data.username ?? ""}`}</div>
+        <div className = "border-b border-slate-400 w-full"></div>
       </PageLayout>
     </>
   );
@@ -27,6 +30,7 @@ import { db
  } from "~/server/db";
 import superjson from "superjson";import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import { PageLayout } from "~/components/layout";
+import Image from "next/image";
  "superjson";
 
 export const getStaticProps: GetStaticProps = async (context) => {
