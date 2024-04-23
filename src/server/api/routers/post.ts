@@ -108,6 +108,39 @@ export const postRouter = createTRPCRouter({
     return addUserDataToPosts(posts)
 
   }),
+    infinitePosts: publicProcedure
+                    .input(
+                      z.object({ 
+                        limit: z.number().min(1).max(5).nullish(), 
+                        cursor: z.number().nullish(),
+                      }))
+                      .query( async ({ctx, input}) => {
+                        const limit = input.limit ?? 10
+                        const {cursor} = input
+                        const items = await ctx.db.post.findMany({
+                          take: limit + 1,
+                          cursor: cursor ? { id: cursor } : undefined
+                          ,
+                          orderBy: [
+                            {
+                              id: "desc",
+                            },
+                          ],
+                        })
+                        let nextCursor: typeof cursor | undefined = undefined
+                        if(items.length > limit) {
+                          const nextItem = items.pop()
+                          nextCursor = nextItem!.id
+                        }
+                        
+                        const posts = await addUserDataToPosts(items)
+
+                        return {
+                          posts,
+                          nextCursor
+                        }
+                      })
+  ,
   getPostsByUserId: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) =>

@@ -59,15 +59,47 @@ const CreatePostWizard = () => {
 
 export const Feed = () => {
 
-  const {data, isLoading: postsLoading } = api.post.getAll.useQuery()
-  
-  if(postsLoading) return <LoadingPage/>
+  const [page,setPage] = useState(0)
 
-  if(!data) return <div>Something went wrong</div>
+  const [nbPosts, setNbPosts] = useState(5)
+
+  const q = api.post.infinitePosts.useInfiniteQuery(
+    {
+      limit: 5,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      // initialCursor: 1
+    },
+  );
+
+  //const {data, isLoading: postsLoading } = api.post.getAll.useQuery()
+
+  const handleFetchNextPage = async() => {
+    const lg = q.data?.pages[page]?.posts?.length 
+    lg ? (lg < 5 ? setNbPosts(lg) : null) : null
+    await q.fetchNextPage();
+    setPage((prev) => prev + 1);
+  };
+
+  const handleFetchPreviousPage = () => {
+    setPage((prev) => prev - 1);
+    page === 0 ? setNbPosts(5) : null
+  };
+  
+  if(q.isLoading) return <LoadingPage/>
+
+  if(q.error) return <div>Something went wrong</div>
 
   return (<div className="flex flex-col">
-    {data?.map ((fullPost) => (<PostView {...fullPost} key = {fullPost.post.id}/>))}
+    {  q.data?.pages[page]?.posts?.map ((fullPost) => (<PostView {...fullPost} key = {fullPost.post.id}/>))}
+    <div className = "flex flex-col items-center">
+    <button onClick = {nbPosts === 5 || page === 0 ? handleFetchNextPage : handleFetchPreviousPage} className="h-16 w-32 bg-slate-600 border-slate-400 center m-4">{nbPosts === 5 || page === 0 ? "Load More Tweets" : "Previous Tweets"}</button>
+    </div>
   </div>)
+
+
+
 }
 
 export default function Home() {
