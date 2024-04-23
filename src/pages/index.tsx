@@ -77,7 +77,10 @@ export const Feed = () => {
 
   const handleFetchNextPage = async() => {
     const lg = q.data?.pages[page]?.posts?.length 
-    lg ? (lg < 5 ? setNbPosts(lg) : null) : null
+    if(lg) if(lg < 5) {
+      setNbPosts(lg)
+      return null
+    }
     await q.fetchNextPage();
     setPage((prev) => prev + 1);
   };
