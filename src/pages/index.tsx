@@ -7,20 +7,28 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { PageLayout } from "~/components/layout";
 import { PostView } from "~/components/postview";
+import {  useForm } from "react-hook-form"
+import type { SubmitHandler } from "react-hook-form"
+import { formSchema } from "~/server/helpers/validation"
+import { zodResolver } from "@hookform/resolvers/zod";
 
+interface FormValues {
+  Tweet: string
+}
 
 const CreatePostWizard = () => {
 
   const { user } = useUser()
 
-  const [input, setInput] = useState("")
-
   const ctx = api.useContext()
+
+  const { register , handleSubmit, watch, formState: { errors }, reset} = useForm<FormValues>({ resolver: zodResolver(formSchema)})
+
 
   const {mutate, isPending: isPosting} = api.post.create.useMutation({
     onSuccess: () =>{
-      setInput("")
-      void ctx.post.getAll.invalidate()
+      reset()
+      void ctx.post.infinitePosts.invalidate()
     },
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors.content
@@ -34,24 +42,22 @@ const CreatePostWizard = () => {
     }
   })
 
+  
+  const onSubmit:SubmitHandler<FormValues> = (data) => {
+    mutate({ content: data.Tweet })
+  }
+
+  console.log("watching... ",watch("Tweet"))
+
   if(!user) return null
 
   return <div className="flex gap-3 ">
-    <Image src = {user.profileImageUrl} alt = 'profile image' className="w-14 h-14 rounded-full" width={56} height = {56}/>
-    <input placeholder='type some emojis' className ='bg-transparent grow outline-none' 
-    value = {input}
-    onChange = {(e) => setInput(e.target.value)}
-    onKeyDown = {(e) => {
-      if(e.key == "Enter") {
-        e.preventDefault()
-        if(input !== ""){
-          mutate({content : input })
-        }
-      }
-    }}
-    disabled = {isPosting}
-    />
-    { input !== "" && (<button onClick = { () => mutate({ content: input })}> Post </button>)}
+    <Image  src = {user.profileImageUrl} alt = 'profile image' className="w-14 h-14 rounded-full" width={56} height = {56}/>
+    <form  onSubmit={ handleSubmit(onSubmit) } className = "m-4 flex gap-20">
+    <input {...register("Tweet", { required: true }) } placeholder='type some emojis' className ='bg-transparent grow outline-none' 
+        />
+        {errors.Tweet && <span>This field is required</span>}
+     { !isPosting && (<button type = "submit"> Post </button>) }</form>
 
     {isPosting && (<div className = "flex items-center justify-center"><LoadingSpinner size = {20}/></div>)}
   </div>
@@ -107,12 +113,13 @@ export const Feed = () => {
 
 export default function Home() {
 
+  
   const {isLoaded: userLoaded, isSignedIn }= useUser() 
 
   // start fetching asap
-  api.post.getAll.useQuery()
+  //api.post.getAll.useQuery()
   // return empty div if user isn't loaded yet
-  if(!userLoaded) return <div/>
+  if(!userLoaded) return <div/> 
 
   return (
     <>
